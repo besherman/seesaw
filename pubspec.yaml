@@ -1,0 +1,6 @@
+name: seesaw
+description: A pub package
+dependencies:
+  browser: any
+dev_dependencies:
+  unittest: any
