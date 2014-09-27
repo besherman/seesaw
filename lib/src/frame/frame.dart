@@ -3,7 +3,8 @@ part of seesaw.frame;
 class Frame extends Component {
   final RootPane _rootPane = new RootPane();
   final html.CanvasElement _canvas;
-  final html.CanvasRenderingContext2D ctx; // TODO: fix this
+  
+  final html.CanvasRenderingContext2D ctx;
   
   _Dispatcher _dispatcher;
   
@@ -30,11 +31,6 @@ class Frame extends Component {
       if(_dispatcher.dispatchEvent(evt) == false) {
           super.dispatchEvent(evt);
       }
-  }
-  
-  void paint(html.CanvasRenderingContext2D ctx) {
-    ctx.fillStyle = "red";
-    ctx.fillRect(0, 0, bounds.width, bounds.height);
   }
   
   void add(Component c) {    

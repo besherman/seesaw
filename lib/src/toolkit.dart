@@ -7,3 +7,4 @@ import "component.dart";
 import "frame.dart";
 
 part "toolkit/repaint_manager.dart";
+part "toolkit/keyboard_focus_manager.dart";

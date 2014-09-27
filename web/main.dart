@@ -41,7 +41,7 @@ void main() {
   var panel = new Component();
   panel.name = "panel with dialog border";
   panel.bounds = new Rectangle<int>(200, 100, 640, 480);
-  panel.background = "white";
+  panel.background = Color.WHITE;
   panel.border = new DialogBorder();
   
   var label = new Component();
@@ -64,7 +64,6 @@ void main() {
   //button.background = "white";
   button.bounds = new Rectangle<int>(20, 50, 100, 25);
   button.text = "Click me";
-  button.border = new LineBorder(1, "black");
   
   panel.add(button);
   

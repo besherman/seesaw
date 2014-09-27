@@ -6,6 +6,7 @@ import "dart:collection";
 import "dart:html" as html;
 
 import "event.dart";
+import "laf.dart";
 import "util.dart";
 import "toolkit.dart";
 

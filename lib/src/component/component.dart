@@ -1,9 +1,11 @@
 part of seesaw.component;
 
 class Component {
+    final String uiClassID = "ComponentUI";
+    
     /**
-   * The bounds of this component relative to its parent.
-   */
+     * The bounds of this component relative to its parent.
+     */
     Rectangle<int> _bounds;
 
     /**
@@ -14,9 +16,9 @@ class Component {
     /**
    * Background stroke, or null if none.
    */
-    String _background = "rgb(240, 240, 240)";
+    Paint _background = Color.GRAY;
     
-    String _foreground = "black";
+    Paint _foreground = Color.BLACK;
 
     Border _border;
 
@@ -25,6 +27,8 @@ class Component {
     String name = ""; 
     
     Font _font = new Font("Tahoma", Font.PLAIN, 11);
+    
+    ComponentUI _ui;
 
     /**
    * Child components.
@@ -72,21 +76,53 @@ class Component {
         invalidateIfValid();
     }
 
-    String get background => _background;
-           set background(String background) => _background = background;
+    Paint get background => _background;
+    set background(Paint background) {
+        _background = background;
+        repaint();
+    }
 
     Border get border => _border;
-           set border(Border border) => _border = border;
+    set border(Border border) {
+        _border = border;
+        revalidate();
+        repaint();
+    }
 
     Component get parent => _parent;
 
     bool get valid => _valid;
     
     Font get font => _font;
+    set font(Font font) {
+        _font = font;
+        revalidate();
+        repaint();
+    }
     
-    String get foreground => _foreground;
+    Paint get foreground => _foreground;
+    
+    bool get isFocusOwner => KeyboardFocusManager.instance.getFocusOwner() == this;
 
-
+    /**
+     * Resets the UI to what the UIManager thinks we should use.
+     */
+    void updateUI() {
+        setUI(UIManager.getUI(this));
+    }
+    
+    void setUI(ComponentUI newUI) {
+        if(_ui != null) {
+            _ui.uninstallUI(this);
+        }
+        _ui = newUI;
+        if(_ui != null) {
+            _ui.installUI(this);
+        }
+        revalidate();
+        repaint();
+    }
+    
    /**
     * Paint this component.
     */
@@ -94,11 +130,53 @@ class Component {
         if (bounds == null) {
             return;
         }
-
-        if (background != null) {
-            ctx.fillStyle = background;
-            ctx.fillRect(0, 0, bounds.width, bounds.height);
+        
+        print("Painting " + this.runtimeType.toString());
+        
+        
+        ctx.save();
+        paintComponent(ctx);
+        ctx.restore();
+        
+        ctx.save();
+        paintBorder(ctx);
+        ctx.restore();
+        
+        paintChildren(ctx);
+    }
+    
+    void paintComponent(html.CanvasRenderingContext2D ctx) {
+        var p = parent != null ? parent.toString() : "null";
+        print("i am '" + toString() + "' and my parent is '" + p + "'");
+        if(_ui != null) {
+            _ui.update(ctx, this);
         }
+    }
+
+    /**
+     * Paints the border if it is set.
+     */
+    void paintBorder(html.CanvasRenderingContext2D ctx) {
+        if (border != null) {
+            border.paint(this, ctx);
+        }
+    }   
+    
+    void paintChildren(html.CanvasRenderingContext2D ctx) {
+        getComponents().forEach((c) {
+            ctx.save();
+            var tx = c.bounds.left,
+                ty = c.bounds.top;    
+            ctx.translate(tx, ty);
+            
+            ctx.beginPath();
+            ctx.rect(0, 0, c.bounds.width, c.bounds.height);
+            ctx.clip();
+            
+            c.paint(ctx);
+            
+            ctx.restore();                        
+        });
     }
     
     String toString() {
@@ -169,14 +247,7 @@ class Component {
         mgr.addDirtyRegion(this);
     }
 
-    /**
-   * Paints the border if it is set.
-   */
-    void paintBorder(html.CanvasRenderingContext2D ctx) {
-        if (border != null) {
-            border.paint(this, ctx);
-        }
-    }
+
 
     /**
    * Returns this component's [RootPane] or null if this is it.
@@ -191,6 +262,9 @@ class Component {
     void add(Component c) {
         if (c._parent != null) {
             throw new StateError("trying to add a component that already has a parent");
+        }
+        if(c == this) {
+            throw new StateError("trying to add a component to itself");
         }
         c._parent = this;
         _components.add(c);

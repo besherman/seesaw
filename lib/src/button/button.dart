@@ -1,6 +1,7 @@
 part of seesaw.button;
 
 class Button extends Component {
+    final String uiClassID = "ButtonUI";
     String _text = "";
     html.ImageElement _defaultIcon;
     ButtonModel _model;
@@ -10,7 +11,8 @@ class Button extends Component {
     StreamSubscription<ChangeEvent> _stateChangedSubscription;
     
     Button() {
-        model = new ButtonModel();    
+        model = new ButtonModel();  
+        updateUI();
     }
     
     String get text => _text;
@@ -73,14 +75,14 @@ class Button extends Component {
             repaint();
         }
     }
-    
-    void paint(html.CanvasRenderingContext2D ctx) {
-        super.paint(ctx);
-        ctx.fillStyle = "black";
-        ctx.font = font.toString();        
-        var width = ctx.measureText(text).width;
-        ctx.fillText(text, bounds.width / 2 - width / 2, bounds.height / 2 + font.size / 2);
-    }
+//    
+//    void paint(html.CanvasRenderingContext2D ctx) {
+//        super.paint(ctx);
+//        ctx.fillStyle = "black";
+//        ctx.font = font.toString();        
+//        var width = ctx.measureText(text).width;
+//        ctx.fillText(text, bounds.width / 2 - width / 2, bounds.height / 2 + font.size / 2);
+//    }
     
     void _onModelActionPerformed(ActionEvent evt) {
         
