@@ -2,9 +2,6 @@ part of seesaw.button;
 
 class ButtonModel {    
     final EventMulticaster _listeners = new EventMulticaster();
-    Stream<ActionEvent> _onActionPerformed;
-    Stream<ChangeEvent> _onStateChanged;
-    Stream<ItemEvent> _onItemStateChanged;
     ChangeEvent _changeEvent;
     
     bool _armed = false;
@@ -12,17 +9,15 @@ class ButtonModel {
     bool _pressed = false;
     bool _rollover = false;
     bool _selected = false;
+    String _actionCommand = "";
     
     ButtonModel() {
-        _onActionPerformed = _listeners.createEventStream(ActionEvent.ACTION_PERFORMED);
-        _onStateChanged = _listeners.createEventStream(ChangeEvent.STATE_CHANGED);
-        _onItemStateChanged = _listeners.createEventStream(ItemEvent.ITEM_STATE_CHANGED);
         _changeEvent = new ChangeEvent(this);
     }
     
-    Stream<ActionEvent> get onActionPerformed => _onActionPerformed;
-    Stream<ChangeEvent> get onStateChanged => _onStateChanged;
-    Stream<ItemEvent> get onItemStateChanged => _onItemStateChanged;
+    Stream<ActionEvent> get onActionPerformed => _listeners.getEventStream(ActionEvent.ACTION_PERFORMED);
+    Stream<ChangeEvent> get onStateChanged => _listeners.getEventStream(ChangeEvent.STATE_CHANGED);
+    Stream<ItemEvent> get onItemStateChanged => _listeners.getEventStream(ItemEvent.ITEM_STATE_CHANGED);
     
     bool get armed => _armed;
          set armed(bool armed) {
@@ -42,8 +37,13 @@ class ButtonModel {
          set pressed(bool pressed) {
              if(_pressed != pressed) { 
                 _pressed = pressed;
+                
+                if(pressed == false && armed) {
+                    _listeners.fireLazy(ActionEvent.ACTION_PERFORMED, () => new ActionEvent(this, actionCommand));
+                }
+                
                 _listeners.fire(_changeEvent);
-             }
+             }             
          }
     bool get rollover => _rollover;
          set rollover(bool rollover) {
@@ -59,5 +59,8 @@ class ButtonModel {
                  _listeners.fire(_changeEvent);
              }
          }
+         
+    String get actionCommand => _actionCommand;
+           set actionCommand(String cmd) => _actionCommand = cmd;
     
 }

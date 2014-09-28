@@ -3,19 +3,49 @@ part of seesaw.button;
 class Button extends Component {
     final String uiClassID = "ButtonUI";
     String _text = "";
-    html.ImageElement _defaultIcon;
+    Icon _defaultIcon;
     ButtonModel _model;
+    int _iconTextGap = 4;
+    Action _action;
+    Subscriptions _actionSubscriptions = new Subscriptions();
     
-    StreamSubscription<ActionEvent> _actionPerformedSubscription; 
-    StreamSubscription<ItemEvent> _itemStateChangedSubscription;
-    StreamSubscription<ChangeEvent> _stateChangedSubscription;
     
-    Button() {
+    EventMulticaster _listeners = new EventMulticaster();    
+    Subscriptions _subscriptions = new Subscriptions();
+    
+    Button({String text: "", Icon icon, Action action}) {
         model = new ButtonModel();  
         updateUI();
+        this.text = text;
+        this.icon = icon;
+        this.action = action;
+    }
+    
+    Stream<ActionEvent> get onActionPerformed => _listeners.getEventStream(ActionEvent.ACTION_PERFORMED);
+    
+    Action get action => _action;
+    set action(Action action) {
+        _action = action;
+        _copyActionsProperties();
+        _actionSubscriptions.cancelAll();
+        _actionSubscriptions.add(onActionPerformed.listen(action.actionPerformed), "actionPerformed");    
+        _actionSubscriptions.add(action.onPropertyChange.listen((e) => _copyActionsProperties()), "propertyChange");
+    }
+    
+    void _copyActionsProperties() {
+        text = _action.name;
+        icon = _action.icon;
+        //enabled = _action.enabled;
     }
     
     String get text => _text;
+    
+    String get actionCommand {
+        String cmd = model.actionCommand;        
+        return cmd != null ? cmd : text; 
+    }
+    
+    set actionCommand(String cmd) => model.actionCommand = cmd;
     
     set text(String text) {
         if(text == null) {
@@ -34,22 +64,22 @@ class Button extends Component {
        _model.selected = selected;
     }
         
-    html.ImageElement get icon => _defaultIcon;
+    Icon get icon => _defaultIcon;
     
-    set icon(html.ImageElement icon) {
+    set icon(Icon icon) {
         if(_defaultIcon != icon) {
-            var oldValue = _defaultIcon;
-            _defaultIcon = icon;
-            
-            if(oldValue == null || icon == null) {
-                revalidate();
-            } else if(oldValue.width != icon.width || oldValue.height != icon.height) {
-                revalidate();
-            }                                  
-              
+            _defaultIcon = icon;            
+            revalidate();              
             repaint();
         }
     }
+    
+    int get iconTextGap => _iconTextGap;
+    set iconTextGap(int gap) {
+        _iconTextGap = gap;
+        repaint();
+    }
+    
                       
     ButtonModel get model => _model;
     
@@ -57,17 +87,15 @@ class Button extends Component {
         var oldModel = _model;
         
         if(oldModel != null) {
-            _actionPerformedSubscription.cancel();
-            _itemStateChangedSubscription.cancel();
-            _stateChangedSubscription.cancel();
+            _subscriptions.cancelAll();
         }
         
         _model = newModel;
         
-        if(newModel != null) {
-            _actionPerformedSubscription = newModel.onActionPerformed.listen(_onModelActionPerformed);
-            _itemStateChangedSubscription = newModel.onItemStateChanged.listen(_onModelItemStateChanged);
-            _stateChangedSubscription = newModel.onStateChanged.listen(_onModelStateChanged);
+        if(newModel != null) {            
+            _subscriptions.add(newModel.onActionPerformed.listen(_onModelActionPerformed), "onActionPerformed");
+            _subscriptions.add(newModel.onItemStateChanged.listen(_onModelItemStateChanged), "onItemStateChanged");
+            _subscriptions.add(newModel.onStateChanged.listen(_onModelStateChanged), "onStateChanged");
         }
         
         if(oldModel != newModel) {
@@ -75,17 +103,9 @@ class Button extends Component {
             repaint();
         }
     }
-//    
-//    void paint(html.CanvasRenderingContext2D ctx) {
-//        super.paint(ctx);
-//        ctx.fillStyle = "black";
-//        ctx.font = font.toString();        
-//        var width = ctx.measureText(text).width;
-//        ctx.fillText(text, bounds.width / 2 - width / 2, bounds.height / 2 + font.size / 2);
-//    }
     
     void _onModelActionPerformed(ActionEvent evt) {
-        
+        _listeners.fireLazy(ActionEvent.ACTION_PERFORMED, () => new ActionEvent(this, actionCommand));
     }
     
     void _onModelItemStateChanged(ItemEvent evt) {

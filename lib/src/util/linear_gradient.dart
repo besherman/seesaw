@@ -11,7 +11,7 @@ class LinearGradient implements Paint {
     Object getFillStyle(html.CanvasRenderingContext2D ctx) {
         var gradient = ctx.createLinearGradient(_start.x, _start.y, _end.x, _end.y);
         for(int i = 0; i < _stops.length; i++) {
-            gradient.addColorStop(_stops[i], _colors[i].toString());
+            gradient.addColorStop(_stops[i], _colors[i].getFillStyle(ctx));
         }
         return gradient;
     }

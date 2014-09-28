@@ -11,6 +11,7 @@ export "src/component.dart";
 export "src/dialog.dart";
 export "src/event.dart";
 export "src/frame.dart";
+export "src/text_field.dart";
 export "src/toolkit.dart";
 export "src/util.dart";
 

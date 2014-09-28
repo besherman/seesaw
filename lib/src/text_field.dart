@@ -1,4 +1,4 @@
-library seesaw.button;
+library seesaw.text_field;
 
 import "dart:async";
 import "dart:html" as html;
@@ -7,5 +7,4 @@ import "event.dart";
 import "component.dart";
 import "util.dart";
 
-part "button/button.dart";
-part "button/button_model.dart";
+part "text_field/text_field.dart";

@@ -4,15 +4,19 @@ part of seesaw.event;
  * Manager of event streams. Tracks listeners and passes out events to the listeners.
  */
 class EventMulticaster {
-    Map<int, _Channel> _channels;
+    Map<int, _Channel> _channels = new Map<int, _Channel>();
     
     void fire(Event evt) {
         var channel = _channels[evt.id];
-        if(channel == null) {
-            throw new Exception("No channel exist for event with id ${evt.id}");
-        }
-        if(channel.enabled) {
+        if(channel != null && channel.enabled) {
             channel.controller.add(evt);
+        }
+    }
+    
+    void fireLazy(int eventId, Event createEvent()) {
+        var channel = _channels[eventId];
+        if(channel != null && channel.enabled) {
+            channel.controller.add(createEvent());
         }
     }
     
@@ -30,11 +34,7 @@ class EventMulticaster {
         return channel.enabled;
     }
     
-    Stream<Event> createEventStream(int eventId) {
-        if(_channels == null) {
-            _channels = new Map<int, _Channel>();
-        }
-        
+    Stream<Event> getEventStream(int eventId) {
         var channel = _channels[eventId];
         if(channel == null) {
             var controller = new StreamController<Event>(

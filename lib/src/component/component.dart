@@ -52,13 +52,13 @@ class Component {
     
     
     Component() {
-        _onMouseMoved = _listeners.createEventStream(MouseEvent.MOUSE_MOVED);
-        _onMousePressed = _listeners.createEventStream(MouseEvent.MOUSE_PRESSED);
-        _onMouseReleased = _listeners.createEventStream(MouseEvent.MOUSE_RELEASED);
-        _onMouseClicked = _listeners.createEventStream(MouseEvent.MOUSE_CLICKED);
-        _onMouseDragged = _listeners.createEventStream(MouseEvent.MOUSE_DRAGGED);
-        _onMouseEntered = _listeners.createEventStream(MouseEvent.MOUSE_ENTERED);
-        _onMouseExited = _listeners.createEventStream(MouseEvent.MOUSE_EXITED);
+        _onMouseMoved = _listeners.getEventStream(MouseEvent.MOUSE_MOVED);
+        _onMousePressed = _listeners.getEventStream(MouseEvent.MOUSE_PRESSED);
+        _onMouseReleased = _listeners.getEventStream(MouseEvent.MOUSE_RELEASED);
+        _onMouseClicked = _listeners.getEventStream(MouseEvent.MOUSE_CLICKED);
+        _onMouseDragged = _listeners.getEventStream(MouseEvent.MOUSE_DRAGGED);
+        _onMouseEntered = _listeners.getEventStream(MouseEvent.MOUSE_ENTERED);
+        _onMouseExited = _listeners.getEventStream(MouseEvent.MOUSE_EXITED);
     }
     
     Stream<MouseEvent> get onMouseMoved    => _onMouseMoved;
@@ -74,6 +74,7 @@ class Component {
                    set bounds(Rectangle<int> bounds) {
         _bounds = bounds;
         invalidateIfValid();
+        repaint();
     }
 
     Paint get background => _background;
@@ -99,6 +100,8 @@ class Component {
         revalidate();
         repaint();
     }
+    
+    Insets<int> get insets => (border != null) ? border.insets : const Insets<int>(0, 0, 0, 0);
     
     Paint get foreground => _foreground;
     
@@ -131,7 +134,7 @@ class Component {
             return;
         }
         
-        print("Painting " + this.runtimeType.toString());
+        //print("Painting " + this.runtimeType.toString());
         
         
         ctx.save();
@@ -145,9 +148,9 @@ class Component {
         paintChildren(ctx);
     }
     
-    void paintComponent(html.CanvasRenderingContext2D ctx) {
-        var p = parent != null ? parent.toString() : "null";
-        print("i am '" + toString() + "' and my parent is '" + p + "'");
+    void paintComponent(html.CanvasRenderingContext2D ctx) {        
+//        var p = parent != null ? parent.toString() : "null";
+//        print("i am '" + toString() + "' and my parent is '" + p + "'");
         if(_ui != null) {
             _ui.update(ctx, this);
         }

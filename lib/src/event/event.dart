@@ -5,6 +5,7 @@ part of seesaw.event;
 // 701     ItemEvent
 // 1001    ActionEvent
 // 2001    ChangeEvent
+// 2101    PropertyChangeEvent
 
 class Event {
   int _id;
@@ -184,5 +185,18 @@ class ChangeEvent extends Event {
 class ItemEvent extends Event {
     static const int ITEM_STATE_CHANGED = 701;
     ItemEvent(Object source): super(source, ITEM_STATE_CHANGED);
+}
+
+class PropertyChangeEvent extends Event {
+    static const int PROPERTY_CHANGED = 2101;
+    String _propertyName;
+    Object _oldValue;
+    Object _newValue;
+    
+    PropertyChangeEvent(Object source, this._propertyName, this._oldValue, this._newValue): super(source, PROPERTY_CHANGED);
+    
+    String get propertyName => _propertyName;
+    Object get oldValue => _oldValue;
+    Object get newValue => _newValue;
 }
 

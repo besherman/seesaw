@@ -1,21 +1,15 @@
-import "dart:html";
+import "dart:html" as html;
 import "package:unittest/unittest.dart";
+import "dart:math";
 
 import "package:seesaw/seesaw.dart";
 
-void ready() {
-  print("i am ready baby!");
-}
 
-void runMyTests() {
-    
-}
 
 
 void main() {
-  runMyTests();
   
-  var canvas = querySelector("#canvas") as CanvasElement;
+  var canvas = html.querySelector("#canvas") as html.CanvasElement;
   
 //  canvas.width = window.innerWidth;
 //  canvas.height = window.innerHeight;
@@ -60,12 +54,22 @@ void main() {
   
   panel.add(label);
   
-  var button = new Button();
+  var action = new Action(name: "GO!", icon: new ImageIcon("img/16_address_book.png", 16, 16), action: (e) {
+      print("he's telling me to go!");
+  });
+  
+  var button = new Button(action: action);
   //button.background = "white";
   button.bounds = new Rectangle<int>(20, 50, 100, 25);
-  button.text = "Click me";
-  
+//  button.text = "Click me";
+//  //button.onActionPerformed.listen((e) => print("clicked!"));
+//  button.icon = new ImageIcon("img/16_address_book.png", 16, 16);
+//  
   panel.add(button);
+  
+  TextField textField = new TextField("Hello, world!");
+  textField.bounds = new Rectangle<int>(20, 100, 100, 20);
+  panel.add(textField);
   
   frame.add(panel);
   frame.validate();
